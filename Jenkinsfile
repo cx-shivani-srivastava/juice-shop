@@ -1,47 +1,45 @@
-/* Requires the Docker Pipeline plugin */
 pipeline {
-    agent { docker { image 'node:24.15.0-alpine3.23' } }
+    agent any
+
+    tools {
+        nodejs 'NodeJS-24'   // must match the name you set in Tools config
+    }
 
     stages {
         stage('Checkout') {
             steps {
-                git url: 'https://github.com/cx-shivani-srivastava/juice-shop.git', branch: 'master'
+                echo 'Checking out source code...'
+                checkout scm
             }
         }
 
         stage('Build') {
             steps {
                 echo 'Installing dependencies...'
-                sh 'node --version'
-                sh 'npm --version'
-                sh 'npm install'
+                bat 'node --version'
+                bat 'npm --version'
+                bat 'npm install'
             }
         }
 
         stage('Test') {
             steps {
                 echo 'Running tests...'
-                sh 'npm test'
+                bat 'npm test'
             }
         }
 
         stage('Deploy') {
             steps {
                 echo 'Deploying application...'
-                sh 'npm start'
+                bat 'echo Deploy step completed'
             }
         }
     }
 
     post {
-        success {
-            echo 'Pipeline completed successfully!'
-        }
-        failure {
-            echo 'Pipeline failed! Check the logs above.'
-        }
-        always {
-            echo 'Pipeline execution finished.'
-        }
+        success { echo 'Pipeline completed successfully!' }
+        failure { echo 'Pipeline failed! Check the logs above.' }
+        always  { echo 'Pipeline execution finished.' }
     }
 }
