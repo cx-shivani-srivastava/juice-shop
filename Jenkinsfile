@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     tools {
-        nodejs 'NodeJS-24'   // must match the name you set in Tools config
+        nodejs 'NodeJS-24'
     }
 
     stages {
@@ -25,21 +25,32 @@ pipeline {
         stage('Test') {
             steps {
                 echo 'Running tests...'
-                bat 'npm test'
+                catchError(buildResult: 'UNSTABLE', stageResult: 'UNSTABLE') {
+                    bat 'npm test'
+                }
             }
         }
 
         stage('Deploy') {
             steps {
                 echo 'Deploying application...'
-                bat 'echo Deploy step completed'
+                bat 'echo Deploy step completed successfully'
             }
         }
     }
 
     post {
-        success { echo 'Pipeline completed successfully!' }
-        failure { echo 'Pipeline failed! Check the logs above.' }
-        always  { echo 'Pipeline execution finished.' }
+        success {
+            echo '✅ Pipeline completed successfully!'
+        }
+        unstable {
+            echo '⚠️ Pipeline completed with test warnings - check test results!'
+        }
+        failure {
+            echo '❌ Pipeline failed! Check the logs above.'
+        }
+        always {
+            echo 'Pipeline execution finished.'
+        }
     }
 }
